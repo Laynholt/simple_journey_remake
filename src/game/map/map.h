@@ -8,6 +8,8 @@
 #include "../config.h"
 #include "../types.h"
 
+#include "terraria/terraria.h"
+
 #define MAP_FULL_FILL 0
 #define MAP_FULL_FILL_WITH_HORIZ 1
 #define MAP_FILL_ROW 2
@@ -21,9 +23,10 @@ typedef struct Map
     uint16_t iMapHeightOld;  // Старое значение высоты карты
 
     uint64_t iMapSize;       // Размер карты
+    uint16_t iBiomQuantity;  // Размер карты биомов
 
     uchar** cMap;            // Карта
-
+    uint16_t* iBiomMap;      // Карта биомов
 }Map;
 
 
@@ -36,7 +39,6 @@ extern void map_destruct(Map* map);
 
 extern void map_fill(Map* map, uchar** background, int16_t fill_type, int16_t fill_row, uchar symbol);
 extern void map_show_frame(Map* map, Point* pCameraPosition);
-//extern void map_generate(Map* map);
 
 
 // TODO:

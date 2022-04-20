@@ -3,7 +3,8 @@
 // Возвращает полный размер карты (размер карты, карты облаков, деревьев...) 
 uint64_t map_get_map_fullsize(const Map* map)
 {
-    return (map->iMapHeight * sizeof(uchar*)) + (map->iMapSize * sizeof(uchar));
+    return (map->iMapHeight * sizeof(uchar*)) + (map->iMapSize * sizeof(uchar)
+            + map->iBiomQuantity * sizeof(uint16_t));
 }
 
 // Выделение памяти под карту
@@ -16,20 +17,24 @@ uchar** map_allocate_memory(uint64_t allocate_size)
 int16_t map_create(Map* map)
 {
     map->iMapSize = map->iMapWidth * map->iMapHeight;
+    
+    uchar** rawMemory = map_allocate_memory(map_get_map_fullsize(map));
+    uint16_t* biomMap;
 
-    uchar** raw_memory = map_allocate_memory(map_get_map_fullsize(map));
-
-    if (raw_memory != NULL)
+    if (rawMemory != NULL)
     {
         // Разбивка под новый массив map
-        uchar* start = (uchar*)raw_memory + (map->iMapHeight * sizeof(uchar*));
+        uchar* start = (uchar*)rawMemory + (map->iMapHeight * sizeof(uchar*));
         for(int16_t i = 0; i < map->iMapHeight; ++i)
         {
-            raw_memory[i] = start + i * map->iMapWidth;
+            rawMemory[i] = start + i * map->iMapWidth;
         }
 
+        // Указываем на массив биомов 
+        biomMap = (uint16_t*)((uchar*)rawMemory + (map->iMapHeight * sizeof(uchar*)) + (map->iMapSize * sizeof(uchar)));
+
         // Заполняем фон карты
-        map_fill(map, raw_memory, MAP_FULL_FILL_WITH_HORIZ, 0, '.');
+        map_fill(map, rawMemory, MAP_FULL_FILL_WITH_HORIZ, 0, '.');
 
         // Копируем старую карту в новую
         if (map->cMap != NULL)
@@ -37,16 +42,20 @@ int16_t map_create(Map* map)
             // Копируем построчно для каждой высоты
             for(int16_t i = 0; i < map->iMapHeight; ++i)
             {
-                memcpy(raw_memory[i], map->cMap[i], map->iMapWidthOld);
+                memcpy(rawMemory[i], map->cMap[i], map->iMapWidthOld);
             }
+
+            memcpy(biomMap, map->iBiomMap, map->iBiomQuantity - 1);
 
             map_destruct(map);
         }
 
-        map->cMap = raw_memory;
+        map->cMap = rawMemory;
+        map->iBiomMap = biomMap;
 
+        printf("123243546576\n\n\n");
         // Генерация территории
-        //map_generate()
+//        terraria_generate(map);
         
         map->iMapWidthOld = map->iMapWidth;
         map->iMapHeightOld = map->iMapHeight;
@@ -97,16 +106,4 @@ void map_show_frame(Map* map, Point* pCameraPosition)
         row[k] = '\0';
         puts(row);
     }
-
-    // printf("\n");
-    // for(uint16_t i = 0; i < SCREEN_HEIGHT; ++i)
-    // {
-        // uint32_t k = 0;
-        // for(uint32_t j = 0; j < SCREEN_WIDTH; ++j)
-        // {
-            // row[k++] = map->cMap[i][j];
-        // }
-        // row[k] = '\0';
-        // puts(row);
-    // }
 }

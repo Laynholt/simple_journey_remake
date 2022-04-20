@@ -12,7 +12,6 @@
 #include "map/map.h"
 #include "camera/camera.h"
 
-
 typedef struct Game
 {
     Map worldMap;
@@ -23,5 +22,8 @@ typedef struct Game
 extern int16_t game_create(Game* game);
 extern void game_start(Game* game);
 extern void game_exit(Game* game);
+
+extern void game_show_info(Game* game);
+extern void game_show_general_info(Game* game);
 
 #endif

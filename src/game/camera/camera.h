@@ -21,7 +21,8 @@ enum eMoveDirection
 typedef struct Camera
 {
     Point position;
-    int16_t iCurrentFrame;
+    uint16_t iCurrentFrame;
+    uint16_t iCurrentBiom;
 
 }Camera;
 
